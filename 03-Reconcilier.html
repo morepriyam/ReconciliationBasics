@@ -2,6 +2,34 @@
 <html>
 
 <head>
+  <style>
+    body {
+      margin-top: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      border: 1px solid #e20808;
+      border-radius: 10px;
+    }
+
+    #addtodobutton {
+      background-color: #56b55b;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    #todos {
+      width: 420px;
+      color: #0b092a;
+    }
+  </style>
   <script>
     let globalId = 1;
     let todoState = [];
@@ -10,7 +38,8 @@
     function addTodoToDom(todo) {
       const todoList = document.getElementById("todos");
       const todoElement = document.createElement("div");
-      todoElement.innerHTML = `<strong> Title :${todo.title}</strong>  <br /> Description: ${todo.description}`;
+      todoElement.innerHTML = `<strong>${todo.title}</strong>  <br />${todo.description}<br /><br />`;
+      todoElement.setAttribute("data-id", todo.id);
       todoList.appendChild(todoElement);
     }
 
@@ -26,10 +55,10 @@
       const todoList = document.getElementById("todos");
       const selectedTodoElement = document.querySelector(`[data-id="${oldTodo.id}"]`);
       if (selectedTodoElement) {
-        selectedTodoElement.innerHTML = `<strong>${newTodo.title}</strong>  <br />  ${newTodo.description}`;
+        selectedTodoElement.innerHTML = `<strong>${newTodo.title}</strong>  <br />  ${newTodo.description}<br /><br />`;
       }
     }
-    
+
 
     function updateState(newTodos) {
       const added = newTodos.filter(todo => !oldTodoState.some(oldTodo => oldTodo.id === todo.id));
@@ -60,13 +89,20 @@
       });
       updateState(todoState);
     }
+    function fetchDataAndUpdate() {
+      fetch("http://localhost:3000/todos")
+        .then(response => response.json())
+        .then(todos => updateState(todos))
+        .catch(error => console.error('Error fetching data:', error));
+    }
+    setInterval(fetchDataAndUpdate, 1000);
   </script>
 </head>
 
 <body>
   <input type="text" id="title" placeholder="Todo title"></input> <br /><br />
   <input type="text" id="description" placeholder="Todo description"></input> <br /><br />
-  <button onclick="addTodo()">Add todo</button>
+  <button id="addtodobutton" onclick="addTodo()">Add todo</button>
   <br /> <br />
 
   <div id="todos"></div>
